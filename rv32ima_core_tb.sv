@@ -27,7 +27,9 @@ module rv32ima_core_tb;
         end
     end
 
-    rv32ima_core dut (
+    rv32ima_core #(
+        .HART_ID(32'd7)
+    ) dut (
         .clk(clk), .reset(reset),
         .memory_valid(memory_valid), .memory_write(memory_write),
         .memory_address(memory_address), .memory_write_data(memory_write_data),
@@ -76,7 +78,8 @@ module rv32ima_core_tb;
         memory[9] = 32'h30102473; // csrr x8,misa
         memory[10] = 32'hc81024f3; // csrr x9,timeh
         memory[11] = 32'hc0102573; // csrr x10,time
-        memory[12] = 32'h0000006f; // loop
+        memory[12] = 32'hf14025f3; // csrr x11,mhartid
+        memory[13] = 32'h0000006f; // loop
 
         repeat (3) @(negedge clk);
         reset = 1'b0;
@@ -92,12 +95,13 @@ module rv32ima_core_tb;
         check_register(5'd8, 32'h40141101);
         check_register(5'd9, 32'h12345678);
         check_register(5'd10, 32'h9abcdef0);
+        check_register(5'd11, 32'd7);
         if (memory[64] !== 32'd40) begin
             $error("memory[0x100] expected=00000028 actual=%08x", memory[64]);
             failures = failures + 1;
         end
-        if (debug_program_counter !== 32'h00000030) begin
-            $error("expected loop PC 00000030 actual=%08x", debug_program_counter);
+        if (debug_program_counter !== 32'h00000034) begin
+            $error("expected loop PC 00000034 actual=%08x", debug_program_counter);
             failures = failures + 1;
         end
 

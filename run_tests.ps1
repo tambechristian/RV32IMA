@@ -54,4 +54,9 @@ foreach ($test in $coreTests) {
     )
 }
 
+Invoke-IcarusTest "zulu_sdram_controller_tb" @(
+    (Join-Path $PSScriptRoot "zulu_a7\rtl\zulu_sdram_controller.sv"),
+    (Join-Path $PSScriptRoot "zulu_a7\rtl\zulu_sdram_controller_tb.sv")
+)
+
 Write-Host "All RV32IMA tests passed."

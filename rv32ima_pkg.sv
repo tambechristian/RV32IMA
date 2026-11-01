@@ -67,4 +67,9 @@ package rv32ima_pkg;
     localparam logic [11:0] CSR_CYCLEH     = 12'hc80;
     localparam logic [11:0] CSR_TIMEH      = 12'hc81;
     localparam logic [11:0] CSR_INSTRETH   = 12'hc82;
+    localparam logic [11:0] CSR_MVENDORID  = 12'hf11;
+    localparam logic [11:0] CSR_MARCHID    = 12'hf12;
+    localparam logic [11:0] CSR_MIMPID     = 12'hf13;
+    localparam logic [11:0] CSR_MHARTID    = 12'hf14;
+    localparam logic [11:0] CSR_MCONFIGPTR = 12'hf15;
 endpackage

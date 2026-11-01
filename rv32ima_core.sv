@@ -1,6 +1,9 @@
 `timescale 1ns / 1ps
 
-module rv32ima_core (
+module rv32ima_core #(
+    parameter logic [31:0] RESET_VECTOR = 32'h00000000,
+    parameter logic [31:0] HART_ID = 32'd0
+) (
     input  logic        clk,
     input  logic        reset,
     output logic        memory_valid,
@@ -164,6 +167,9 @@ module rv32ima_core (
                 CSR_MCYCLEH, CSR_CYCLEH: csr_read = cycle_counter[63:32];
                 CSR_MINSTRETH, CSR_INSTRETH: csr_read = instret_counter[63:32];
                 CSR_TIMEH: csr_read = time_value[63:32];
+                CSR_MHARTID: csr_read = HART_ID;
+                CSR_MVENDORID, CSR_MARCHID, CSR_MIMPID,
+                CSR_MCONFIGPTR: csr_read = 32'd0;
                 default: csr_read = 32'd0;
             endcase
         end
@@ -178,7 +184,9 @@ module rv32ima_core (
                 CSR_MTVEC, CSR_MCOUNTEREN, CSR_MSCRATCH, CSR_MEPC, CSR_MCAUSE,
                 CSR_MTVAL, CSR_MIP, CSR_MCYCLE, CSR_MINSTRET, CSR_CYCLE,
                 CSR_TIME, CSR_INSTRET, CSR_MCYCLEH, CSR_MINSTRETH,
-                CSR_CYCLEH, CSR_TIMEH, CSR_INSTRETH: csr_exists = 1'b1;
+                CSR_CYCLEH, CSR_TIMEH, CSR_INSTRETH, CSR_MVENDORID,
+                CSR_MARCHID, CSR_MIMPID, CSR_MHARTID,
+                CSR_MCONFIGPTR: csr_exists = 1'b1;
                 default: csr_exists = 1'b0;
             endcase
         end
@@ -341,7 +349,7 @@ module rv32ima_core (
         if (reset) begin
             state <= FETCH_REQUEST;
             privilege_mode <= PRIV_M;
-            pc <= 32'd0;
+            pc <= RESET_VECTOR;
             instruction <= 32'h00000013;
             mstatus <= 32'd0;
             medeleg <= 32'd0;
