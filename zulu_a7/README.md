@@ -47,6 +47,34 @@ Windows, the build script includes `windows-opensbi.mk` to place archive
 inputs in response files and avoid the Windows command-line length limit.
 Generated firmware under `opensbi/build/` is intentionally not committed.
 
+## Buildroot
+
+The `buildroot` directory is a `BR2_EXTERNAL` tree for Buildroot 2026.08.1.
+It builds an RV32IMA musl/BusyBox system with an initramfs linked into Linux
+6.18.7, the Zulu device tree, and an OpenSBI 1.9 payload image.
+
+From Ubuntu WSL:
+
+```bash
+export PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+export EXTERNAL=/mnt/c/Users/tambe/Documents/Electronics/Cmod_A7-35T/VS_code/RV32IMA/zulu_a7/buildroot
+make -C ~/buildroot O=~/build/zulu-a7-rv32ima \
+    BR2_EXTERNAL="$EXTERNAL" zulu_a7_rv32ima_defconfig
+make -C ~/buildroot O=~/build/zulu-a7-rv32ima
+```
+
+Final images are written to `~/build/zulu-a7-rv32ima/images`. The
+`fw_payload.bin` image contains OpenSBI at `0x80000000`, Linux at
+`0x80400000`, and the Buildroot initramfs. OpenSBI places the embedded FDT at
+`0x83E00000` before entering Linux.
+
+The post-image hook rebuilds `fw_payload.bin` after Buildroot links the final
+initramfs into `Image`, ensuring OpenSBI embeds the final kernel rather than
+the earlier pre-initramfs image.
+
+The Linux-only `PATH` is required because Buildroot rejects the Windows paths
+with spaces that WSL normally appends to the environment.
+
 ## Current status
 
 Implemented:
@@ -55,6 +83,7 @@ Implemented:
 - Zulu memory-map constants
 - RV32IMA device tree
 - OpenSBI build script
+- Buildroot RV32IMA Linux/initramfs configuration
 - Wishbone SDR SDRAM controller, behavioral testbench, and routed SDRAM pins
 
 Still required before Linux can run on hardware:
